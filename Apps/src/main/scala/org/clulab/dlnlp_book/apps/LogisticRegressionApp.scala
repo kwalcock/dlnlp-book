@@ -2,6 +2,7 @@ package org.clulab.dlnlp_book.apps
 
 import me.shadaj.scalapy.py
 import me.shadaj.scalapy.py.SeqConverters
+import org.clulab.dlnlp_book.apps.LogisticRegressionApp.{nEpochs, nExamples}
 
 class Python {
   val pyLen = py.Dynamic.global.len
@@ -15,9 +16,17 @@ object LogisticRegressionApp extends Python with App {
   val random = py.module("random")
   val np = py.module("numpy")
   val torch = py.module("torch")
-  val tqdm = py.module("tqdm.notebook")
+  val tqdm = py.module("tqdm") // .notebook")
 
-  // set this variable to a number to be used as the random seed
+  val indices1 = np.arange(10)
+  val loop = tqdm.tqdm(indices1, desc = s"epoch hello") // Get some kind of range?
+  Range(0, 10).foreach { index =>
+    Thread.sleep(200)
+    loop.update(n = 1)
+  }
+  println()
+
+   // set this variable to a number to be used as the random seed
   // or to None if you don't want to set a random seed
   val seedOpt = Some(1234) // None
 
@@ -26,14 +35,10 @@ object LogisticRegressionApp extends Python with App {
     np.random.seed(seed)
   }
 
-  sigmoid(0f)
-  sigmoid(Float.MaxValue)
-  sigmoid(Float.MinValue)
-
   // In [4]:
   val glob = py.module("glob")
-  val posFiles = glob.glob("e:/DocumentCollections/aclImdb/train/pos/*.txt")
-  val negFiles = glob.glob("e:/DocumentCollections/aclImdb/train/neg/*.txt")
+  var posFiles = glob.glob("e:/DocumentCollections/aclImdb/train/pos/*.txt")
+  var negFiles = glob.glob("e:/DocumentCollections/aclImdb/train/neg/*.txt")
 
   println(s"number of positive reviews: ${pyLen(posFiles)}")
   println(s"number of negative reviews: ${pyLen(negFiles)}")
@@ -41,7 +46,7 @@ object LogisticRegressionApp extends Python with App {
   // In [5]:
   val sklearn = py.module("sklearn.feature_extraction.text")
   val cv = sklearn.CountVectorizer(input = "filename")
-  val docTermMatrix = cv.fit_transform(posFiles + negFiles)
+  var docTermMatrix = cv.fit_transform(posFiles + negFiles)
   // println(docTermMatrix)
 
   // In [6]:
@@ -59,8 +64,8 @@ object LogisticRegressionApp extends Python with App {
 
   // In [8]:
   // training labels
-  val yPos = np.ones(pyLen(posFiles))
-  val yNeg = np.zeros(pyLen(negFiles))
+  var yPos = np.ones(pyLen(posFiles))
+  var yNeg = np.zeros(pyLen(negFiles))
   val yTrain = np.concatenate(pyList(Seq(yPos, yNeg).toPythonProxy))
   println(yTrain)
 
@@ -71,11 +76,14 @@ object LogisticRegressionApp extends Python with App {
 
   // In [10]:
   // from scipy.special import expit as sigmoid
-  def sigmoid(z: Float): Float = {
+  // See sigmoid above.
+  val sigmoid: (Float) => Float = {
     val limit = np.log(np.finfo(pyFloat).max).as[Float]
 
-    if (-z > limit) 0f
-    else 1f / (1f + np.exp(-z).as[Float])
+    (z: Float) => {
+      if (-z > limit) 0f
+      else 1f / (1f + np.exp(-z).as[Float])
+    }
   }
 
   // In [11]:
@@ -87,16 +95,38 @@ object LogisticRegressionApp extends Python with App {
     np.random.shuffle(indices)
     // traverse the training data
     val loop = tqdm.tqdm(indices, desc = s"epoch ${epoch + 1}") // Get some kind of range?
-    println(loop)
-    loop.foreach { i: Int =>
+    Range(0, nExamples.as[Int]).foreach { i =>
+      loop.update(n = 1)
       val x = xTrain.bracketAccess(i)
       val y = yTrain.bracketAccess(i)
       // calculate the derivative of the cost function for this batch
-      val derivCost = (sigmoid((x `@` w).as[Float]) - y.as[Float]) * x.as[Float]
+      val step1 = x.dot(w)
+      val step2 = step1.as[Float]
+      val step3 = sigmoid(step2)
+      val step4 = step3 - y.as[Float]
+      val step5 = step4 * x.as[Float]
+      val derivCost = step5
       // update the weights
       w = w -lr * derivCost
-
     }
+  }
+  println()
+
+  // In [12]:
+  posFiles = glob.glob("e:/DocumentCollections/aclImdb/test/pos/*.txt")
+  negFiles = glob.glob("e:/DocumentCollections/aclImdb/test/neg/*.txt")
+  docTermMatrix = cv.transform(posFiles + negFiles)
+  var xTest = docTermMatrix.toarray()
+  xTest = np.column_stack((xTest, np.ones(xTest.shape.bracketAccess(0))))
+  yPos = np.ones(pyLen(posFiles))
+  yNeg = np.zeros(pyLen(negFiles))
+  val yTest = np.concatenate(pyList(Seq(yPos, yNeg).toPythonProxy))
+
+  // In [13]:
+  val yPred = xTest `@` w > 0
+
+  def binaryClassificationReport(yTrue: Dynamic, yPred: Dynamic): Unit = {
+
   }
 
   println("Hello, world!")
