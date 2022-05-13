@@ -3,8 +3,14 @@ package org.clulab.dlnlp_book.apps
 import me.shadaj.scalapy.py
 import me.shadaj.scalapy.py.SeqConverters
 
-object LogisticRegressionApp extends App {
+class Python {
+  val pyLen = py.Dynamic.global.len
+  val pyList = py.Dynamic.global.list
+  val pyDict = py.Dynamic.global.dict
+  val pyFloat = py.Dynamic.global.float
+}
 
+object LogisticRegressionApp extends Python with App {
   // In [1]:
   val random = py.module("random")
   val np = py.module("numpy")
@@ -20,19 +26,21 @@ object LogisticRegressionApp extends App {
     np.random.seed(seed)
   }
 
+  sigmoid(0f)
+  sigmoid(Float.MaxValue)
+  sigmoid(Float.MinValue)
+
   // In [4]:
   val glob = py.module("glob")
   val posFiles = glob.glob("e:/DocumentCollections/aclImdb/train/pos/*.txt")
   val negFiles = glob.glob("e:/DocumentCollections/aclImdb/train/neg/*.txt")
 
-  val len = py.Dynamic.global.len
-
-  println(s"number of positive reviews: ${len(posFiles)}")
-  println(s"number of negative reviews: ${py.Dynamic.global.len(negFiles)}")
+  println(s"number of positive reviews: ${pyLen(posFiles)}")
+  println(s"number of negative reviews: ${pyLen(negFiles)}")
 
   // In [5]:
   val sklearn = py.module("sklearn.feature_extraction.text")
-  val cv = sklearn.CountVectorizer(input="filename")
+  val cv = sklearn.CountVectorizer(input = "filename")
   val docTermMatrix = cv.fit_transform(posFiles + negFiles)
   // println(docTermMatrix)
 
@@ -51,10 +59,45 @@ object LogisticRegressionApp extends App {
 
   // In [8]:
   // training labels
-  val yPos = np.ones(py.Dynamic.global.len(posFiles))
-  val yNeg = np.zeros(py.Dynamic.global.len(negFiles))
-  val yTrain = np.concatenate(py.Dynamic.global.list(Seq(yPos, yNeg).toPythonProxy))
+  val yPos = np.ones(pyLen(posFiles))
+  val yNeg = np.zeros(pyLen(negFiles))
+  val yTrain = np.concatenate(pyList(Seq(yPos, yNeg).toPythonProxy))
   println(yTrain)
+
+  // In [9]:
+  // initialize model: the feature vector and bias term are populated with zeros
+  val (nExamples, nFeatures) = (xTrain.shape.bracketAccess(0), xTrain.shape.bracketAccess(1))
+  var w = np.random.random(nFeatures)
+
+  // In [10]:
+  // from scipy.special import expit as sigmoid
+  def sigmoid(z: Float): Float = {
+    val limit = np.log(np.finfo(pyFloat).max).as[Float]
+
+    if (-z > limit) 0f
+    else 1f / (1f + np.exp(-z).as[Float])
+  }
+
+  // In [11]:
+  val lr = 1e-1f
+  val nEpochs = 10
+  val indices = np.arange(nExamples)
+  Range(0, nEpochs).foreach { epoch =>
+    // randomize the order in which training examples are seen in this epoch
+    np.random.shuffle(indices)
+    // traverse the training data
+    val loop = tqdm.tqdm(indices, desc = s"epoch ${epoch + 1}") // Get some kind of range?
+    println(loop)
+    loop.foreach { i: Int =>
+      val x = xTrain.bracketAccess(i)
+      val y = yTrain.bracketAccess(i)
+      // calculate the derivative of the cost function for this batch
+      val derivCost = (sigmoid((x `@` w).as[Float]) - y.as[Float]) * x.as[Float]
+      // update the weights
+      w = w -lr * derivCost
+
+    }
+  }
 
   println("Hello, world!")
 }
