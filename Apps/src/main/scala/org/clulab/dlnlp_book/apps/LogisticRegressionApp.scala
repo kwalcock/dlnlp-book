@@ -1,22 +1,28 @@
 package org.clulab.dlnlp_book.apps
 
+import me.shadaj.scalapy.numpy.NDArray
+import me.shadaj.scalapy.numpy.NumPy
+import me.shadaj.scalapy.interpreter.CPythonInterpreter
 import me.shadaj.scalapy.py
-import me.shadaj.scalapy.py.SeqConverters
-import org.clulab.dlnlp_book.apps.LogisticRegressionApp.{nEpochs, nExamples}
+import me.shadaj.scalapy.py.{ObjectReader, SeqConverters}
 
 class Python {
   val pyLen = py.Dynamic.global.len
   val pyList = py.Dynamic.global.list
   val pyDict = py.Dynamic.global.dict
   val pyFloat = py.Dynamic.global.float
+
+  type PyAny = py.Any
 }
 
 object LogisticRegressionApp extends Python with App {
   // In [1]:
   val random = py.module("random")
-  val np = py.module("numpy")
+  val np = py.module("numpy") // .as[NumPy]
   val torch = py.module("torch")
   val tqdm = py.module("tqdm") // .notebook")
+
+  implicit val sth: ObjectReader[NDArray[Float]] = NDArray.seqReader[Float]
 
   val indices1 = np.arange(10)
   val loop = tqdm.tqdm(indices1, desc = s"epoch hello") // Get some kind of range?
@@ -74,21 +80,35 @@ object LogisticRegressionApp extends Python with App {
   val (nExamples, nFeatures) = (xTrain.shape.bracketAccess(0), xTrain.shape.bracketAccess(1))
   var w = np.random.random(nFeatures)
 
+  CPythonInterpreter.execManyLines(
+    """|
+       |""".stripMargin
+  )
+
   // In [10]:
   // from scipy.special import expit as sigmoid
   // See sigmoid above.
-  val sigmoid: (Float) => Float = {
-    val limit = np.log(np.finfo(pyFloat).max).as[Float]
+  val sigmoid: (NDArray[Float]) => py.Dynamic = {
+    val limit = np.log(np.finfo(pyFloat).max)
 
-    (z: Float) => {
-      if (-z > limit) 0f
-      else 1f / (1f + np.exp(-z).as[Float])
+    (z: NDArray[Float]) => {
+      val negZ = -z // np.negative(z) // .as[Float]
+
+//      if (negZ.`>`(limit)) NDArray.zeros(1)
+//      else
+        np.ones(1) / (np.ones(1) + np.exp(negZ))
     }
   }
 
   // In [11]:
   val lr = 1e-1f
   val nEpochs = 10
+
+  val model = torch.nn.Linear(nFeatures, 1)
+  val lossFunc = torch.nn.BCEWithLogitLoss()
+  val optimizer = torch.optim.SGD(model.parameters(), lr = lr)
+
+
   val indices = np.arange(nExamples)
   Range(0, nEpochs).foreach { epoch =>
     // randomize the order in which training examples are seen in this epoch
@@ -101,10 +121,10 @@ object LogisticRegressionApp extends Python with App {
       val y = yTrain.bracketAccess(i)
       // calculate the derivative of the cost function for this batch
       val step1 = x.dot(w)
-      val step2 = step1.as[Float]
+      val step2 = step1.as[NDArray[Float]]
       val step3 = sigmoid(step2)
-      val step4 = step3 - y.as[Float]
-      val step5 = step4 * x.as[Float]
+      val step4 = step3 - y
+      val step5 = step4 * x
       val derivCost = step5
       // update the weights
       w = w -lr * derivCost

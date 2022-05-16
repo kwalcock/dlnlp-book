@@ -25,5 +25,6 @@ addSbtPlugin("com.typesafe.sbteclipse"  % "sbteclipse-plugin"    % "5.2.4")     
 // released together MUST be of the same version."
 // * Held back out of an abundance of caution.
 
-libraryDependencies += "ai.kien" %% "python-native-libs" % "0.2.2"
-
+libraryDependencies ++= Seq(
+  "ai.kien"   %% "python-native-libs" % "0.2.2"
+)

@@ -19,6 +19,11 @@ resolvers ++= Seq(
 //  Resolvers.jitpackResolver // Ontologies
 )
 
+libraryDependencies ++= {
+  Seq(
+  )
+}
+
 lazy val Apps = project
 
 lazy val Notebooks = project
