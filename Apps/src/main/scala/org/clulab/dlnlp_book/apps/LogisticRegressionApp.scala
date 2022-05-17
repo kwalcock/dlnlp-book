@@ -19,7 +19,7 @@ class Python {
 }
 
 object LogisticRegressionApp extends Python with App {
-  val baseDir = "e:/DocumentCollections/aclImdb-short/"
+  val baseDir = "e:/DocumentCollections/aclImdb/"
 
   // In [1]:
   val random = py.module("random")
@@ -65,7 +65,7 @@ object LogisticRegressionApp extends Python with App {
 
   // In [9]:
   val lr = 1e-1f
-  val nEpochs = 10
+  val nEpochs = 30
 
   val model = torch.nn.Linear(nFeatures, 1)
   val lossFunc = torch.nn.BCEWithLogitsLoss()
@@ -76,7 +76,6 @@ object LogisticRegressionApp extends Python with App {
 
   val indices = np.arange(nExamples)
   Range(0, nEpochs).foreach { epoch =>
-    val nErrors = 0
     // randomize training examplesa
     np.random.shuffle(indices)
     // for each training exmaple
