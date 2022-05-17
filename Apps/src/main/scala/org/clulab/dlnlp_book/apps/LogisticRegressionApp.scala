@@ -113,7 +113,7 @@ object LogisticRegressionApp extends Python with App {
   // In [11]:
   val yPred = {
     val result = model(xTest)
-    val seq = result.detach().numpy().as[mutable.Seq[Float]]
+    val seq = result.detach().cpu().numpy().as[Seq[Float]]
     val ans = seq.map { value => if (value > 0f) 1f else 0f }
 
     ans
