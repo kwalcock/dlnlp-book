@@ -1,13 +1,9 @@
 package org.clulab.dlnlp_book.apps
 
-import me.shadaj.scalapy.numpy.NDArray
-import me.shadaj.scalapy.numpy.NumPy
-import me.shadaj.scalapy.interpreter.CPythonInterpreter
 import me.shadaj.scalapy.py
-import me.shadaj.scalapy.py.{ObjectReader, SeqConverters}
+import me.shadaj.scalapy.py.SeqConverters
 
 import scala.collection.immutable.HashMap
-import scala.collection.mutable
 
 class Python {
   val pyLen = py.Dynamic.global.len
@@ -19,7 +15,8 @@ class Python {
 }
 
 object LogisticRegressionApp extends Python with App {
-  val baseDir = "e:/DocumentCollections/aclImdb/"
+  // val baseDir = "e:/DocumentCollections/aclImdb/"
+  val baseDir = "/media/kwa/Data Disk/home/kwa/Projects/corpora/aclImdb/"
 
   // In [1]:
   val random = py.module("random")
