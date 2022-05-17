@@ -6,6 +6,9 @@ import me.shadaj.scalapy.interpreter.CPythonInterpreter
 import me.shadaj.scalapy.py
 import me.shadaj.scalapy.py.{ObjectReader, SeqConverters}
 
+import scala.collection.immutable.HashMap
+import scala.collection.mutable
+
 class Python {
   val pyLen = py.Dynamic.global.len
   val pyList = py.Dynamic.global.list
@@ -105,15 +108,48 @@ object LogisticRegressionApp extends Python with App {
   xTest = torch.tensor(xTest, dtype = torch.float32)
   yPos = np.ones(pyLen(posFiles))
   yNeg = np.zeros(pyLen(negFiles))
-  val yTest = np.concatenate(pyList(Seq(yPos, yNeg).toPythonProxy))
+  val yTest = np.concatenate(pyList(Seq(yPos, yNeg).toPythonProxy)).as[Seq[Float]]
 
   // In [11]:
-//  val yPred = xTest `@` w > 0 // How to do this?
+  val yPred = {
+    val result = model(xTest)
+    val seq = result.detach().numpy().as[mutable.Seq[Float]]
+    val ans = seq.map { value => if (value > 0f) 1f else 0f }
 
-  // In [12]:
-  def binaryClassificationReport(yTrue: py.Dynamic, yPred: py.Dynamic): Unit = {
-
+    ans
   }
 
-  println("Hello, world!")
+  // In [12]:
+  def binaryClassificationReport(yTrue: Seq[Float], yPred: Seq[Float]): Map[String, Float] = {
+    // count true positives, false positives, true negatives, and false negatives
+    var (tp, fp, tn, fn) = (0f, 0f ,0f, 0f)
+
+    for ((gold, pred) <- yTrue.zip(yPred)) {
+      if (pred == 1f)
+        if (gold == 1f) tp += 1
+        else fp += 1
+      else
+        if (gold == 0f) tn += 1
+        else fn += 1
+    }
+    // calculate precision and recall
+    val precision = tp / (tp + fp)
+    val recall = tp / (tp + fn)
+    // calculate f1 score
+    val fscore = 2 * precision * recall / (precision + recall)
+    // calculate accuracy
+    val accuracy = (tp + tn) / yTrue.length
+    // number of positive labels in yTrue
+    val support = yTrue.sum
+
+    HashMap(
+      "precision" -> precision,
+      "recall" -> recall,
+      "f1-score" -> fscore,
+      "support" -> support,
+      "accuracy" -> accuracy
+    )
+  }
+
+  println(binaryClassificationReport(yTest, yPred))
 }
