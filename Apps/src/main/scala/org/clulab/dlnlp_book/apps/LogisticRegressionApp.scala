@@ -86,7 +86,7 @@ object LogisticRegressionApp extends Python with App {
       val yPred = model(x)
       // calculate loss
       val loss = lossFunc(yPred.bracketAccess(0), yTrue)
-      // calculate pradients through back-propagation
+      // calculate gradients through back-propagation
       loss.backward()
       // optimize model parameters
       optimizer.step()
