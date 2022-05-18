@@ -8,8 +8,9 @@ from tqdm import tqdm
 # Linux
 # base_dir = '/media/kwa/Data Disk/home/kwa/Projects/corpora/aclImdb/'
 # Mac
-base_dir = '/Users/kwa/Projects/kwalcock/m1-dlnlp-project/corpora/aclImdb/'
+# base_dir = '/Users/kwa/Projects/kwalcock/m1-dlnlp-project/corpora/aclImdb/'
 # Windows
+base_dir = 'E:/DocumentCollections/aclImdb/'
 
 # set this variable to a number to be used as the random seed
 # or to None if you don't want to set a random seed

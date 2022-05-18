@@ -25,4 +25,4 @@ Remember to use JVM options similar to these:
 * Windows:
 
     * -Djna.library.path=D:/ProgramFiles/Python39
-    * -Dscalapy.python.library=python39"
+    * -Dscalapy.python.library=python39
