@@ -33,6 +33,10 @@ object BuildUtils {
     System.getProperty("os.name").toLowerCase().contains("win")
   }
 
+  def isMac(): Boolean = {
+    System.getProperty("os.name").startsWith("Mac ")
+  }
+
   // One shouldn't use the giter8 packaged format because of backslashes in Windows.
   def pkgToDir(pkg: String): String = pkg.replace('.', '/')
 

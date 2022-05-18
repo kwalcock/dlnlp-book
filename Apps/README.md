@@ -1,5 +1,13 @@
 # Apps
 
+Several Python packages are required and might be installed with these commands:
+ 
+* pip3 install torch
+* pip3 install tqdm
+* pip3 install sklearn
+* pip3 install ipywidgets (for Notebook)
+
+
 Remember to use JVM options similar to these:
 
 * Linux:

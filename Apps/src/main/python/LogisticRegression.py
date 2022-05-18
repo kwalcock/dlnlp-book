@@ -5,7 +5,11 @@ import torch
 from tqdm import tqdm
 # from tqdm.notebook import tqdm
 
-base_dir = '/media/kwa/Data Disk/home/kwa/Projects/corpora/aclImdb/'
+# Linux
+# base_dir = '/media/kwa/Data Disk/home/kwa/Projects/corpora/aclImdb/'
+# Mac
+base_dir = '/Users/kwa/Projects/kwalcock/m1-dlnlp-project/corpora/aclImdb/'
+# Windows
 
 # set this variable to a number to be used as the random seed
 # or to None if you don't want to set a random seed
