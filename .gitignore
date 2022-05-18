@@ -1,5 +1,6 @@
 target/
+.ipynb_checkpoints/
+null
 .bsp
 .idea
 .DS_Store
-.ipynb_checkpoints/
