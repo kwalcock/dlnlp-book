@@ -30,6 +30,7 @@ object LogisticRegressionApp extends Python with App {
   seedOpt.foreach { seed =>
     random.seed(seed)
     np.random.seed(seed)
+    torch.manual_seed(seed)
   }
 
   // In [4]:
