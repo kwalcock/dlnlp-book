@@ -9,7 +9,8 @@ lazy val javaOpts = {
       "-Dscalapy.python.library=python39"
     )
   else {
-    val result = Python().scalapyProperties.get.map { case (key, value) =>
+    val python = if (BuildUtils.isMac()) Python("python3.10") else Python()
+    val result = python.scalapyProperties.get.map { case (key, value) =>
       s"-D$key=$value"
     }.toSeq
     result.foreach { result => println(s"Python: $result") }
