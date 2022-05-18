@@ -20,7 +20,7 @@ object LogisticRegressionApp extends Python with App {
 
   // In [1]:
   val random = py.module("random")
-  val np = py.module("numpy") // .as[NumPy]
+  val np = py.module("numpy")
   val torch = py.module("torch")
   val tqdm = py.module("tqdm") // .notebook")
 
@@ -77,7 +77,7 @@ object LogisticRegressionApp extends Python with App {
     // randomize training examplesa
     np.random.shuffle(indices)
     // for each training exmaple
-    val progressBar = tqdm.tqdm(indices, desc = s"epoch ${epoch + 1}") // Get some kind of range?
+    val progressBar = tqdm.tqdm(indices, desc = s"epoch ${epoch + 1}")
     Range(0, nExamples).foreach { index =>
       val i = indices.bracketAccess(index)
       val x = xTrain.bracketAccess(i)

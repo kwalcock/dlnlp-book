@@ -25,5 +25,3 @@ libraryDependencies ++= {
 }
 
 lazy val Apps = project
-
-lazy val Notebooks = project
