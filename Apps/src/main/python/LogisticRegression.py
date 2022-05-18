@@ -2,7 +2,8 @@
 import random
 import numpy as np
 import torch
-from tqdm.notebook import tqdm
+from tqdm import tqdm
+# from tqdm.notebook import tqdm
 
 base_dir = '/media/kwa/Data Disk/home/kwa/Projects/corpora/aclImdb/'
 
@@ -129,4 +130,4 @@ def binary_classification_report(y_true, y_pred):
     }
 
 # In [13]:
-binary_classification_report(y_test, y_pred)
+print(binary_classification_report(y_test, y_pred))

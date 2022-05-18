@@ -62,7 +62,7 @@ object LogisticRegressionApp extends Python with App {
 
   // In [9]:
   val lr = 1e-1f
-  val nEpochs = 30
+  val nEpochs = 10
 
   val model = torch.nn.Linear(nFeatures, 1)
   val lossFunc = torch.nn.BCEWithLogitsLoss()
