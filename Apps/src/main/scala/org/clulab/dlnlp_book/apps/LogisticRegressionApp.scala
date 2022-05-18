@@ -77,7 +77,8 @@ object LogisticRegressionApp extends Python with App {
     np.random.shuffle(indices)
     // for each training exmaple
     val progressBar = tqdm.tqdm(indices, desc = s"epoch ${epoch + 1}") // Get some kind of range?
-    Range(0, nExamples).foreach { i =>
+    Range(0, nExamples).foreach { index =>
+      val i = indices.bracketAccess(index)
       val x = xTrain.bracketAccess(i)
       val yTrue = yTrain.bracketAccess(i)
       // make predictions
