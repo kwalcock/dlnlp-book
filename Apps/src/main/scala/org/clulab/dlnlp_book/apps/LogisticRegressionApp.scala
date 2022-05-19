@@ -18,9 +18,9 @@ object LogisticRegressionApp extends Python with App {
   // Linux
   // val baseDir = "/media/kwa/Data Disk/home/kwa/Projects/corpora/aclImdb/"
   // Mac
-  val baseDir = "/Users/kwa/Projects/kwalcock/m1-dlnlp-project/corpora/aclImdb/"
+  // val baseDir = "/Users/kwa/Projects/kwalcock/m1-dlnlp-project/corpora/aclImdb/"
   // Windows
-  // val baseDir = "e:/DocumentCollections/aclImdb/"
+  val baseDir = "E:/DocumentCollections/aclImdb/"
 
   // In [1]:
   val random = py.module("random")
